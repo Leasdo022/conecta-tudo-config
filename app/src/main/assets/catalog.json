@@ -1,0 +1,30 @@
+{
+  "conteudos": [
+    {
+      "id": 1,
+      "tipo": "VOD",
+      "categoria": "Filmes",
+      "titulo": "Vídeo de Teste 1",
+      "descricao": "Conteúdo de exemplo para testar o app",
+      "url": "http://brsupport.pro/get.php?username=AU3aT&password=aA7B3m&type=m3u_plus&output=ts",
+      "thumb": "https://picsum.photos/600/340?random=1"
+    },
+    {
+      "id": 2,
+      "tipo": "VOD",
+      "categoria": "Séries",
+      "titulo": "Vídeo de Teste 2",
+      "descricao": "Outro exemplo para validar a lista",
+      "url": "https://test-streams.mux.dev/test_001/stream.m3u8",
+      "thumb": "https://picsum.photos/600/340?random=2"
+    },
+    {
+      "id": 3,
+      "tipo": "LIVE",
+      "categoria": "Canais",
+      "titulo": "Canal Demo",
+      "descricao": "Ao vivo (demo)",
+      "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    }
+  ]
+}
