@@ -1,5 +1,15 @@
 package com.example.a1projeto.ui.screens
 
+
+import com.example.a1projeto.ui.components.SideMenu
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.LiveTv
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material3.Icon
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -25,6 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import com.example.a1projeto.ui.components.MenuEntry
+
 
 data class DashboardTile(
     val title: String,
@@ -35,11 +50,10 @@ data class DashboardTile(
 @Composable
 fun MainDashboardScreen(
     tiles: List<DashboardTile>,
-    onOpenSettings: () -> Unit,          // ✅ agora o dashboard sabe abrir settings
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
     val isTv =
         ((context.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) ==
                 Configuration.UI_MODE_TYPE_TELEVISION)
@@ -47,8 +61,22 @@ fun MainDashboardScreen(
     val outerPadding = if (isTv) 20.dp else 10.dp
     val titleSize = if (isTv) 26.sp else 18.sp
     val gridSpacing = if (isTv) 18.dp else 10.dp
+    val menuWidth = if (isTv) 260.dp else 220.dp
 
-    Box(
+    // ✅ menu aqui (dentro do composable)
+    val menu = listOf(
+        MenuEntry("live", "TV Ao Vivo") { Icon(Icons.Filled.LiveTv, null) },
+        MenuEntry("vod", "Filmes") { Icon(Icons.Filled.Movie, null) },
+        MenuEntry("series", "Séries") { Icon(Icons.Filled.Tv, null) },
+        MenuEntry("settings", "Configurações") { Icon(Icons.Filled.Settings, null) },
+    )
+
+
+
+
+    var selected by remember { mutableStateOf("live") }
+
+    Row(
         modifier = modifier
             .fillMaxSize()
             .background(
@@ -58,9 +86,24 @@ fun MainDashboardScreen(
             )
             .padding(outerPadding)
     ) {
+        // ✅ menu lateral animado
+        SideMenu(
+            items = menu,
+            selectedId = selected,
+            onSelect = { entry ->
+                selected = entry.id
+                if (entry.id == "settings") onOpenSettings()
+                // se quiser, aqui você navega pra "live/vod/series"
+            },
+            modifier = Modifier.width(menuWidth)
+        )
+
+        Spacer(Modifier.width(if (isTv) 18.dp else 12.dp))
+
+        // ✅ conteúdo da direita (seu layout atual)
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             Text(
                 text = "Conecta Tudo",
@@ -71,7 +114,7 @@ fun MainDashboardScreen(
             )
 
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3), // ✅ sempre 3 no dashboard (como seu print)
+                columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(gridSpacing),
                 horizontalArrangement = Arrangement.spacedBy(gridSpacing),
                 modifier = Modifier.fillMaxWidth()
