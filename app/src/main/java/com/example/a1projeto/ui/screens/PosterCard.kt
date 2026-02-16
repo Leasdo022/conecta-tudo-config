@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.border
+
 
 
 @Composable
@@ -33,56 +35,38 @@ fun PosterCard(
 ) {
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(18.dp)
+    val focusColor = Color(0xFF00E5FF)
 
-    // animações suaves (Netflix-like)
-    val scale by animateFloatAsState(
-        targetValue = if (focused) 1.25f else 1f,
-        animationSpec = tween(durationMillis = 140),
-        label = "scale"
-    )
+    val scale by animateFloatAsState(if (focused) 1.18f else 1f, label = "scale")
+    val borderW by animateDpAsState(if (focused) 6.dp else 0.dp, label = "border")
 
-    val shadow by animateDpAsState(
-        targetValue = if (focused) 30.dp else 6.dp,
-        animationSpec = tween(durationMillis = 140),
-        label = "shadow"
-    )
-
-    val borderWidth by animateDpAsState(
-        targetValue = if (focused) 4.dp else 0.dp,
-        animationSpec = tween(durationMillis = 140),
-        label = "border"
-    )
-
-    Card(
+    Box(
         modifier = modifier
-            .zIndex(if (focused) 10f else 0f) // ✅ vem pra frente
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shadow(shadow, shape, clip = false)
-            .onFocusChanged { focused = it.isFocused }
+            .zIndex(if (focused) 10f else 0f)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            // ✅ BORDA FORA (mais visível que Card(border=...))
+            .border(borderW, focusColor, shape)
+            // ✅ brilho forte por trás
+            .shadow(
+                elevation = if (focused) 30.dp else 0.dp,
+                shape = shape,
+                clip = false,
+                ambientColor = focusColor,
+                spotColor = focusColor
+            )
             .clip(shape)
+            .onFocusChanged { focused = it.isFocused }
             .focusable()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { onClick() },
-        shape = shape,
-        border = if (focused) BorderStroke(borderWidth, Color.White) else null,
-        elevation = CardDefaults.cardElevation(0.dp)
+            ) { onClick() }
     ) {
-        Box(Modifier.fillMaxSize()) {
-            poster()
+        poster()
 
-            if (focused) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color.White.copy(alpha = 0.08f)) // ✅ brilho mais “claro”
-                )
-            }
+        if (focused) {
+            // ✅ overlay mais forte
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.25f)))
         }
     }
 }
-

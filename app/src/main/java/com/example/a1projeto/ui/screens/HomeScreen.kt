@@ -1,5 +1,11 @@
 package com.example.a1projeto.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.text.style.TextAlign
 import com.example.a1projeto.data.local.FavKind
@@ -519,44 +525,42 @@ fun HomeScreen(
                                 }
                                 else -> {
                                     items(filteredFinal, key = { it.id }) { item ->
-                                        val openItem: () -> Unit = {
-                                            if (selectedTab == TabKind.SERIES) {
-                                                context.startActivity(
-                                                    Intent(context, SeriesActivity::class.java).apply {
-                                                        putExtra("series_id", item.id.toString())
-                                                        putExtra("series_name", item.titulo)
-                                                    }
-                                                )
-                                            } else {
-                                                context.startActivity(
-                                                    Intent(context, VodDetailsActivity::class.java).apply {
-                                                        putExtra("vod_id", item.id.toString())
-                                                        putExtra("title", item.titulo)
-                                                    }
-                                                )
-                                            }
-                                        }
+
+                                        var focused by remember { mutableStateOf(false) }
+                                        val shape = RoundedCornerShape(18.dp)
+                                        val focusColor = Color(0xFF00E5FF)
+
+                                        val scale by animateFloatAsState(if (focused) 1.12f else 1f, label = "scale")
+                                        val borderW by animateDpAsState(if (focused) 6.dp else 0.dp, label = "border")
 
                                         Column(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                                            modifier = Modifier
+                                                .zIndex(if (focused) 10f else 0f)
+                                                .graphicsLayer { scaleX = scale; scaleY = scale }
+                                                .border(borderW, focusColor, shape) // ✅ borda forte
+                                                .shadow(
+                                                    elevation = if (focused) 30.dp else 0.dp,
+                                                    shape = shape,
+                                                    clip = false
+                                                )
+                                                .clip(shape)
+                                                .onFocusChanged { focused = it.isFocused }
+                                                .focusable()
                                         ) {
-                                            TvFocusScale(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .aspectRatio(2f / 3f)
-                                                    .clickable { openItem() }
-                                                    .onPreviewKeyEvent { e ->
-                                                        if (e.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                                                        if (e.key == androidx.compose.ui.input.key.Key.DirectionCenter || e.key == androidx.compose.ui.input.key.Key.Enter) {
-                                                            openItem(); true
-                                                        } else false
-                                                    },
-                                                focusedScale = 1.06f,
-                                                showBorder = true
-                                            ) {
+                                            // ✅ POSTER com overlay quando focado
+                                            Box(Modifier.fillMaxWidth().aspectRatio(2f / 3f)) {
                                                 PosterImage(url = item.thumb, modifier = Modifier.fillMaxSize())
+
+                                                if (focused) {
+                                                    Box(
+                                                        Modifier
+                                                            .fillMaxSize()
+                                                            .background(Color.Black.copy(alpha = 0.20f))
+                                                    )
+                                                }
                                             }
+
+                                            Spacer(Modifier.height(6.dp))
 
                                             Text(
                                                 text = item.titulo,
@@ -566,6 +570,7 @@ fun HomeScreen(
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 modifier = Modifier.padding(horizontal = 4.dp)
                                             )
+
                                             TextButton(
                                                 onClick = {
                                                     val kind = when (selectedTab) {
@@ -573,19 +578,14 @@ fun HomeScreen(
                                                         TabKind.VOD -> FavKind.VOD
                                                         TabKind.SERIES -> FavKind.SERIES
                                                     }
-                                                    scope.launch {
-                                                        FavoritesStore.toggleFavorite(context, kind, item.id)
-                                                    }
+                                                    scope.launch { FavoritesStore.toggleFavorite(context, kind, item.id) }
                                                 }
                                             ) {
                                                 Text(if (favorites.contains(item.id)) "★" else "☆", color = Color.White)
                                             }
-
-
-
-
                                         }
                                     }
+
                                 }
                             }
                         }
@@ -595,6 +595,8 @@ fun HomeScreen(
         }
     }
 }
+
+
 
 
 
