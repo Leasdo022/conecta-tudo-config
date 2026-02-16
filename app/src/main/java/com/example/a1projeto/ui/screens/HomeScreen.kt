@@ -240,6 +240,8 @@ fun HomeScreen(
 
     // Preview TV: canal selecionado (somente no LIVE)
     var selectedChannel by remember { mutableStateOf<Conteudo?>(null) }
+    var previewActive by remember { mutableStateOf(true) }
+
 
     LaunchedEffect(selectedTab, filtered) {
         if (selectedTab == TabKind.LIVE) {

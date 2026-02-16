@@ -44,6 +44,7 @@ fun decodeIfBase64(s: String): String {
     val t = s.trim()
     if (t.isEmpty()) return t
 
+
     // Heurística simples: só caracteres válidos e tamanho múltiplo de 4
     val base64Regex = Regex("^[A-Za-z0-9+/=_-]+$") // inclui URL-safe (- _)
     val looksBase64 = t.length >= 8 && t.length % 4 == 0 && base64Regex.matches(t)
@@ -56,6 +57,7 @@ fun decodeIfBase64(s: String): String {
             Base64.decode(t, Base64.DEFAULT)
         } catch (_: IllegalArgumentException) {
             Base64.decode(t, Base64.URL_SAFE)
+
 
 
         }
@@ -248,9 +250,7 @@ fun LiveTvScreenTvLike(
                     LivePreviewPlayer(
                         url = selectedChannel.url,
                         isPreviewActive = previewActive,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 9f)
+                        modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -266,11 +266,12 @@ fun LiveTvScreenTvLike(
                     Spacer(Modifier.height(10.dp))
 
                     Button(
-                        onClick = { onPlay(selectedChannel) },
+                        onClick = {
+                            previewActive = false
+                            onPlay(selectedChannel)
+                        },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Assistir")
-                    }
+                    ) { Text("Assistir") }
 
                     Spacer(Modifier.height(10.dp))
 

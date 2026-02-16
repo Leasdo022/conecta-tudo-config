@@ -19,16 +19,10 @@ fun LivePreviewPlayer(
 ) {
     val context = LocalContext.current
 
+
     val exoPlayer = remember(url) {
         ExoPlayer.Builder(context).build().apply {
             repeatMode = ExoPlayer.REPEAT_MODE_ONE
-
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-                .build()
-            setAudioAttributes(audioAttributes, true)
-
             if (url.isNotBlank()) {
                 setMediaItem(MediaItem.fromUri(Uri.parse(url)))
                 prepare()
@@ -36,11 +30,11 @@ fun LivePreviewPlayer(
         }
     }
 
-    // ✅ controla som/pausa do preview
+    // controla tocar/parar + volume
     LaunchedEffect(isPreviewActive) {
-        exoPlayer.volume = if (isPreviewActive) 1f else 0f
         exoPlayer.playWhenReady = isPreviewActive
-        if (!isPreviewActive) exoPlayer.pause() else exoPlayer.play()
+        exoPlayer.volume = if (isPreviewActive) 1f else 0f
+        if (!isPreviewActive) exoPlayer.pause()
     }
 
     DisposableEffect(exoPlayer) {
@@ -54,9 +48,7 @@ fun LivePreviewPlayer(
                 useController = false
                 player = exoPlayer
             }
-        },
-        update = { view ->
-            view.player = exoPlayer
         }
     )
 }
+
